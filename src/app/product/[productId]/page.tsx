@@ -80,7 +80,8 @@ const Page = async ({ params }: PageProps) => {
                 </div>
             </div>
         </div>
+    
     </MaxWidthWrapper>
 }
 export default Page 
-
+//yay
