@@ -24,46 +24,52 @@ export const paymentRouter = router({
         },
       });
 
-      const filteredProducts  = products.filter((prod) => Boolean(prod.priceId))
+      const filteredProducts = products.filter((prod) => Boolean(prod.priceId));
 
       const order = await payload.create({
         collection: "orders",
         data: {
-            _isPaid: false,
-            products: filteredProducts,
-            user: user.id,
-        }
-      })
-      
-      const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = []
-      
-      filteredProducts.forEach((product) =>{
+          _isPaid: false,
+          products: filteredProducts,
+          user: user.id,
+        },
+      });
+
+      const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+
+      filteredProducts.forEach((product) => {
         line_items.push({
-            price: product.priceId!,
-            quantity: 1, //TODO: CAN CHANGE
-        })
-      })
+          price: product.priceId!,
+          quantity: 1, //TODO: CAN CHANGE
+        });
+      });
 
       line_items.push({
         price: "price_1PD7Bp1jJDEvlc5aR8L0pzMM",
         quantity: 1,
         adjustable_quantity: {
-            enabled: false
-        }
-      })
+          enabled: false,
+        },
+      });
 
       try {
         const stripeSession = await stripe.checkout.sessions.create({
-            success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
-            payment_method_types: ["card", 'paypal'],
-            mode: "payment",
-            metadata: {
-                userId: user.id,
-                orderId: order.id,
-            },
-            line_items,
-        })
-      } catch (error) {}
+          success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
+          payment_method_types: ["card", "paypal"],
+          mode: "payment",
+          metadata: {
+            userId: user.id,
+            orderId: order.id,
+          },
+          line_items,
+        });
+        return { url: stripeSession.url };
+      } catch (error) {
+        console.log(error);
+        return {
+          url: null,
+        };
+      }
     }),
 });
