@@ -20,4 +20,3 @@ const isAuth = middleware(async ({ctx, next})=>{
 export const router  = t.router
 export const publicProcedure = t.procedure
 export const privateProcedure = t.procedure.use(isAuth)
-//9:20:50
